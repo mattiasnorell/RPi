@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
 import MySQLdb
+import json
 
 db = MySQLdb.connect("localhost", "rpiuser", "devpassword", "RPiDev")
 curs=db.cursor()
@@ -33,8 +34,35 @@ def saveTemperature(sensorId, sensorName, temp):
     query = """INSERT INTO Temperatures (tSensorId,tDatetime,tTemp) VALUES(%s,NOW(),%s)"""
     curs.execute (query,(sensorId, temp))
 
-def readSensors():
-    curs.execute ("""SELECT Id,sSensorSerialNo,sSensorName,sSensorType,sMinValue,sMaxValue from Sensors""")
+def readSensors(sensorId, sensorName, sensorSerialNo, sensorType, sensorMinValue, sensorMaxValue):
+	sensorConfig = getSensorConfigFile(sensorSerialNumber)  
+    temp = parseTemperature(sensorConfig)
+		
+    if sensorType == "temp":
+		print "Sensor: ", sensorName
+        print "Temperature: ", temp, "°C\n"
+        saveTemperature(sensorId, sensorName, temp)
+        checkTemperature(sensorName, temp, sensorMinValue, sensorMaxValue)
+
+
+def readSensorConfigFromFile(configFile):
+	with open(configFile) as jsonFile
+	sensorData = json.load(jsonFile)
+
+	jsonFile.close()
+
+	for item in sensorData["sensors"]:
+		sensorId = item["Id"]
+		sensorSerialNumber = item["SensorSerialNo"]
+		sensorName = item["SensorName"]
+		sensorType = item["SensorType"]
+		sensorMinValue = item["MinValue"]
+		sensorMaxValue = item["MaxValue"]
+		
+		readSensors(sensorId, sensorName, sensorSerialNo, sensorType, sensorMinValue, sensorMaxValue)
+	
+def readSensorConfigFromDb():
+	curs.execute ("""SELECT Id,sSensorSerialNo,sSensorName,sSensorType,sMinValue,sMaxValue from Sensors""")
 
     for reading in curs.fetchall():
         sensorId = reading["Id"]
@@ -43,16 +71,11 @@ def readSensors():
         sensorType = reading["sSensorType"]
         sensorMinValue = reading["sMinValue"]
         sensorMaxValue = reading["sMaxValue"]
-        text = getSensorConfigFile(sensorSerialNumber)  
-        temp = parseTemperature(text)
-
+        
         with db:
-            if sensorType == "temp":
-                print "Sensor: ", sensorName
-                print "Temperature: ", temp, "°C\n"
-                saveTemperature(sensorId, sensorName, temp)
-                checkTemperature(sensorName, temp, sensorMinValue, sensorMaxValue)
-                
-readSensors()
+			readSensors(sensorId, sensorName, sensorSerialNo, sensorType, sensorMinValue, sensorMaxValue)
+	db.close()
+			
+readSensorConfigFromFile('sensors.json')
 
-db.close()
+

@@ -1,0 +1,25 @@
+{
+"sensors":[
+	{
+		"Id":"0",
+		"SensorName":"Sensor One",
+		"SensorSerialNo":"",
+		"MinValue":16,
+		"MaxValue":30
+	},
+	{
+		"Id":"1",
+		"SensorName":"Sensor Two",
+		"SensorSerialNo":"",
+		"MinValue":16,
+		"MaxValue":30
+	},
+	{
+		"Id":"2",
+		"SensorName":"Sensor Three",
+		"SensorSerialNo":"",
+		"MinValue":16,
+		"MaxValue":30
+	}
+	]
+}
