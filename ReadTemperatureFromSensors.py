@@ -34,15 +34,15 @@ def saveTemperature(sensorId, sensorName, temp):
     curs.execute (query,(sensorId, temp))
 
 def readSensors():
-    curs.execute ("""SELECT * from Sensors""")
+    curs.execute ("""SELECT Id,sSensorSerialNo,sSensorName,sSensorType,sMinValue,sMaxValue from Sensors""")
 
     for reading in curs.fetchall():
-        sensorId = reading[0]
-        sensorSerialNumber = str(reading[1])
-        sensorName = str(reading[2])
-        sensorType = str(reading[3])
-        sensorMinValue = reading[4]
-        sensorMaxValue = reading[5]
+        sensorId = reading["Id"]
+        sensorSerialNumber = reading["sSensorSerialNo"]
+        sensorName = reading["sSensorName"]
+        sensorType = reading["sSensorType"]
+        sensorMinValue = reading["sMinValue"]
+        sensorMaxValue = reading["sMaxValue"]
         text = getSensorConfigFile(sensorSerialNumber)  
         temp = parseTemperature(text)
 
